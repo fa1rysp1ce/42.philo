@@ -1,5 +1,15 @@
 #include "philo.h"
 
+size_t	getms(void)
+{
+	struct timeval	timev;
+	size_t			mstime;
+
+	gettimeofday(&timev, NULL);
+	mstime = (timev.tv_sec * 1000) + (timev.tv_usec / 1000);
+	return (mstime);
+}
+
 int	ft_atoi(const char *str)
 {
 	int	i;
