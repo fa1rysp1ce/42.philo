@@ -1,7 +1,8 @@
 NAME = philo
 
 SRCS = main.c \
-		utils.c
+		utils.c \
+		philo.c
 
 OBJS = $(SRCS:.c=.o)
 

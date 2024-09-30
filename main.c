@@ -5,7 +5,7 @@ int	main(int argc, char **argv)
 	t_data	data;
 	size_t	start_time;
 
-	start_time = getusecs();
+	start_time = getms();
 	if (argc > 6 || argc < 5)
 	{
 		printf("Error\nMust have 4 or 5 args\n");
@@ -13,6 +13,7 @@ int	main(int argc, char **argv)
 	}
 	if (init_all(argc, argv, &data, start_time) != 0)
 		return (1);
+	meal(&data);
 	return (0);
 }
 
@@ -68,12 +69,12 @@ int	init_philos(t_data *data, t_philo *philos)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		philos[i]->id = i;
-		philos[i]->meals_eaten = 0;
-		philos[i]->last_meal = data->start_time;
-		philos[i]->data = data;
+		philos[i].id = i;
+		philos[i].meals_eaten = 0;
+		philos[i].last_meal = getms(); //data->start_time;
+		philos[i].data = data;
 		if (pthread_mutex_init(&data->mutex[i], NULL) != 0
-			|| pthread_mutex_init(&philos[i]->is_free, NULL) != 0)
+			|| pthread_mutex_init(&philos[i].is_free, NULL) != 0)
 		{
 			while (i > 0)
 			{
