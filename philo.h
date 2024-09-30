@@ -10,22 +10,25 @@
 
 typedef struct s_philo
 {
-	pthread_t	thread;
-	int			id;
-	int			meals_eaten;
-	int			is_busy;
-	size_t		last_meal;
+	pthread_t		thread;
+	int				id;
+	int				meals_eaten;
+	pthread_mutex_t	is_free;
+	size_t			last_meal;
+	t_data			*data;
 }	t_philo;
 
 typedef struct s_data
 {
 	t_philo			philos[200];
 	pthread_mutex_t	mutex[200];
+	int				dead_flag;
 	int				num_philos;
 	size_t			die_time;
 	size_t			eat_time;
 	size_t			sleep_time;
 	size_t			meal_number;
+	size_t			start_time;
 }	t_data;
 
 //main
