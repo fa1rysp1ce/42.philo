@@ -1,12 +1,25 @@
 #include "philo.h"
 
+void	free_pthread(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->num_philos)
+	{
+		pthread_join((data->philos[i].thread), NULL);
+		pthread_mutex_destroy(&data->mutex[i]);
+		i++;
+	}
+}
+
 size_t	getms(void)
 {
 	struct timeval	timev;
 	size_t			mstime;
 
 	gettimeofday(&timev, NULL);
-	mstime = (timev.tv_sec * 1000) + (timev.tv_usec / 1000);
+	mstime = (timev.tv_sec * 1000) + (timev.tv_usec / 1000); //(timev.tv_sec * 1000) + (timev.tv_usec / 1000);
 	return (mstime);
 }
 

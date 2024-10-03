@@ -6,26 +6,25 @@ int	meal(t_data *data)
 	int			i;
 
 	pthread_create(&obs, NULL, &observer, data);
-	printf("1\n");
-	while (data->done_flag == 0)
+	if (data->num_philos == 1)
+		pthread_create(&(data->philos[0].thread), NULL, &routine_one, &(data->philos[0]));
+	else
 	{
-		i = 0;
-		while (i < data->num_philos)
+		while (data->done_flag == 0)
 		{
-			if (data->done_flag != 0)
-				break;
-			pthread_create(&(data->philos[i].thread), NULL, &routine, &(data->philos[i]));
-			i++;
+			i = 0;
+			while (i < data->num_philos && data->done_flag == 0)
+			{
+				if (data->philos[i].meals_eaten != data->meal_number 
+					&& data->philos[i].ifree == 0)
+					pthread_create(&(data->philos[i].thread), NULL, &routine, &(data->philos[i]));
+				usleep(100);
+				i++;
+			}
 		}
 	}
-	i = 0;
-	while (i < data->num_philos)
-	{
-		pthread_join((data->philos[i].thread), NULL);
-		i++;
-	}
 	pthread_join(obs, NULL);
-	free_mutex(data);
+	free_pthread(data);
 	return (0);
 }
 
@@ -58,49 +57,66 @@ void	*observer(void *arg)
 	return (data);
 }
 
+void	*routine_one(void *arg)
+{
+	t_philo	*philo;
+
+	philo = arg;
+	pthread_mutex_lock(&philo->data->mutex[philo->fork1]);
+	printf("%zu %d has taken a fork\n", getms(), philo->id + 1);
+	while (philo->data->done_flag == 0)
+		usleep(50);
+	pthread_mutex_unlock(&philo->data->mutex[philo->fork1]);
+	return (philo);
+}
+
 void	*routine(void *arg)
 {
 	t_philo	*philo;
 
 	philo = arg;
-	pthread_mutex_lock(&philo->is_free);
-	pthread_mutex_lock(&philo->data->mutex[philo->id]);
+	//pthread_mutex_lock(&philo->is_free);
+	philo->ifree = 1;
+	if (eating(philo))
+		return (NULL);
 	if (philo->data->done_flag != 0)
-		return (philo);
-	printf("%zu %d has taken a fork\n", getms(), philo->id + 1);
-	if (philo->id == 0)
-		pthread_mutex_lock(&philo->data->mutex[philo->data->num_philos - 1]);
-	else
-		pthread_mutex_lock(&philo->data->mutex[philo->id - 1]);
+	{
+	//	pthread_mutex_unlock(&philo->data->mutex[philo->fork1]);
+	//	pthread_mutex_unlock(&philo->data->mutex[philo->fork2]);
+		return (NULL);
+	}
+	printf("%zu %d is sleeping\n", getms(), philo->id + 1);
+	usleep(philo->data->sleep_time * 1000); //hier
 	if (philo->data->done_flag != 0)
-		return (philo);
-	printf("%zu %d has taken a fork\n", getms(), philo->id + 1);
-	philo->last_meal = getms();
-	if (philo->data->done_flag != 0)
-		return (philo);
-	printf("%zu %d is eating\n", philo->last_meal, philo->id + 1);
-	usleep(philo->data->eat_time);
-	//unlock mutexes, maybe init forks to philos
-	philo->meals_eaten++;
-	if (philo->data->done_flag != 0)
-		return (philo);
-	printf("%zu %d is sleeping\n", philo->last_meal, philo->id + 1);
-	usleep(philo->data->sleep_time);
-	if (philo->data->done_flag != 0)
-		return (philo);
-	printf("%zu %d is thinking\n", philo->last_meal, philo->id + 1);
-	pthread_mutex_unlock(&philo->is_free);
+		return (NULL);
+	printf("%zu %d is thinking\n", getms(), philo->id + 1);
+	//pthread_mutex_unlock(&philo->is_free);
+	philo->ifree = 0;
 	return (philo);
 }
 
-void	free_mutex(t_data *data)
+int	eating(t_philo *philo)
 {
-	int	i;
-
-	i = 0;
-	while (i < data->num_philos)
+	pthread_mutex_lock(&philo->data->mutex[philo->fork1]);
+	if (philo->data->done_flag != 0)
 	{
-		pthread_mutex_destroy(&data->mutex[i]);
-		i++;
+		pthread_mutex_unlock(&philo->data->mutex[philo->fork1]);
+		return (1);	
 	}
+	printf("%zu %d has taken a fork\n", getms(), philo->id + 1);
+	pthread_mutex_lock(&philo->data->mutex[philo->fork2]);
+	if (philo->data->done_flag != 0)
+	{
+		pthread_mutex_unlock(&philo->data->mutex[philo->fork1]);
+		pthread_mutex_unlock(&philo->data->mutex[philo->fork2]);
+		return (2);
+	}
+	printf("%zu %d has taken a fork\n", getms(), philo->id + 1);
+	philo->last_meal = getms();
+	printf("%zu %d is eating\n", philo->last_meal, philo->id + 1);
+	usleep((philo->data->eat_time * 1000)); //hier
+	philo->meals_eaten++;
+	pthread_mutex_unlock(&philo->data->mutex[philo->fork1]);
+	pthread_mutex_unlock(&philo->data->mutex[philo->fork2]);
+	return (0);
 }

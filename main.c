@@ -27,6 +27,7 @@ int	init_all(int argc, char **argv, t_data *data, size_t start_time)
 	data->num_philos = ft_atoi(argv[1]);
 	data->die_time = ft_atoi(argv[2]);
 	data->eat_time = ft_atoi(argv[3]);
+	printf("%zu\n", data->eat_time);
 	data->sleep_time = ft_atoi(argv[4]);
 	data->start_time = start_time;
 	data->done_flag = 0;
@@ -71,8 +72,9 @@ int	init_philos(t_data *data, t_philo *philos)
 	{
 		philos[i].id = i;
 		philos[i].meals_eaten = 0;
-		philos[i].last_meal = getms(); //data->start_time;
+		philos[i].last_meal = getms();
 		philos[i].data = data;
+		philos[i].ifree = 0;
 		if (pthread_mutex_init(&data->mutex[i], NULL) != 0
 			|| pthread_mutex_init(&philos[i].is_free, NULL) != 0)
 		{
@@ -84,6 +86,16 @@ int	init_philos(t_data *data, t_philo *philos)
 			printf("Error\nMutex init failed\n");
 			return (1);
 		}
+		/*if (i % 2 == 0)
+		{
+			philos[i].fork1 = (i + 1) % data->num_philos;
+			philos[i].fork2 = i;
+		}
+		else
+		{*/
+			philos[i].fork1 = i;
+			philos[i].fork2 = (i + 1) % data->num_philos;
+		//}
 		i++;
 	}
 	return (0);

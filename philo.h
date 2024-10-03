@@ -16,8 +16,11 @@ typedef struct s_philo
 	int				id;
 	int				meals_eaten;
 	pthread_mutex_t	is_free;
+	int				ifree;
 	size_t			last_meal;
 	t_data			*data;
+	int				fork1;
+	int				fork2;
 }	t_philo;
 
 typedef struct s_data
@@ -26,10 +29,10 @@ typedef struct s_data
 	pthread_mutex_t	mutex[200];
 	int				done_flag;
 	int				num_philos;
+	int				meal_number;
 	size_t			die_time;
 	size_t			eat_time;
 	size_t			sleep_time;
-	int				meal_number;
 	size_t			start_time;
 }	t_data;
 
@@ -44,10 +47,12 @@ int	init_philos(t_data *data, t_philo *philos);
 int		meal(t_data *data);
 void	*observer(void *arg);
 void	*routine(void *arg);
-void	free_mutex(t_data *data);
+int		eating(t_philo *philo);
+void	*routine_one(void *arg);
 
 //utils
+void	free_pthread(t_data *data);
 size_t	getms(void);
-int	ft_atoi(const char *str);
+int		ft_atoi(const char *str);
 
 #endif
