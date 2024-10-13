@@ -5,10 +5,13 @@ void	free_pthread(t_data *data)
 	int	i;
 
 	i = 0;
+	pthread_join(data->obs, NULL);
+	pthread_mutex_destroy(&data->writing);
 	while (i < data->num_philos)
 	{
 		pthread_join((data->philos[i].thread), NULL);
 		pthread_mutex_destroy(&data->mutex[i]);
+		pthread_mutex_destroy(&data->philos[i].is_eating);
 		i++;
 	}
 }
@@ -19,7 +22,7 @@ size_t	getms(void)
 	size_t			mstime;
 
 	gettimeofday(&timev, NULL);
-	mstime = (timev.tv_sec * 1000) + (timev.tv_usec / 1000); //(timev.tv_sec * 1000) + (timev.tv_usec / 1000);
+	mstime = (timev.tv_sec * 1000) + (timev.tv_usec / 1000);
 	return (mstime);
 }
 

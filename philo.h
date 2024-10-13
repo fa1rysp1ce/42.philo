@@ -15,7 +15,7 @@ typedef struct s_philo
 	pthread_t		thread;
 	int				id;
 	int				meals_eaten;
-	pthread_mutex_t	is_free;
+	pthread_mutex_t	is_eating;
 	int				ifree;
 	size_t			last_meal;
 	t_data			*data;
@@ -25,8 +25,10 @@ typedef struct s_philo
 
 typedef struct s_data
 {
-	t_philo	philos[200];
+	t_philo			philos[200];
 	pthread_mutex_t	mutex[200];
+	pthread_mutex_t	writing;
+	pthread_t		obs;
 	int				done_flag;
 	int				num_philos;
 	int				meal_number;
@@ -46,8 +48,11 @@ int	init_philos(t_data *data, t_philo *philos);
 //philo
 int		meal(t_data *data);
 void	*observer(void *arg);
+
+//routine
 void	*routine(void *arg);
-int		eating(t_philo *philo);
+int		wait_turn(t_philo *philo);
+void	eat(t_philo *philo);
 void	*routine_one(void *arg);
 
 //utils
