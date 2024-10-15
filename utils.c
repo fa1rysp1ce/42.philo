@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: junruh <junruh@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/14 19:21:42 by junruh            #+#    #+#             */
+/*   Updated: 2024/10/14 19:55:18 by junruh           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	free_pthread(t_data *data)
@@ -6,14 +18,28 @@ void	free_pthread(t_data *data)
 
 	i = 0;
 	pthread_join(data->obs, NULL);
-	pthread_mutex_destroy(&data->writing);
 	while (i < data->num_philos)
 	{
-		pthread_join((data->philos[i].thread), NULL);
+		if (data->philos[i].thread_active == 1 || data->num_philos == 1)
+			pthread_join((data->philos[i].thread), NULL);
 		pthread_mutex_destroy(&data->mutex[i]);
 		pthread_mutex_destroy(&data->philos[i].is_eating);
 		i++;
 	}
+	pthread_mutex_destroy(&data->writing);
+	pthread_mutex_destroy(&data->done_m);
+}
+
+int	sim_end(t_data *data)
+{
+	int	r;
+
+	r = 0;
+	pthread_mutex_lock(&data->done_m);
+	if (data->done_flag != 0)
+		r = 1;
+	pthread_mutex_unlock(&data->done_m);
+	return (r);
 }
 
 size_t	getms(void)

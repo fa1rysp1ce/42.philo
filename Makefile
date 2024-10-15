@@ -9,7 +9,7 @@ OBJS = $(SRCS:.c=.o)
 
 CC = cc
 RM = rm -rf
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -fsanitize=thread -g
 IFLAGS = -I.
 
 .PHONY: all clean fclean re
@@ -20,7 +20,7 @@ all: $(NAME)
 	$(CC) $(CFLAGS) $(IFLAGS) -c -o $@ $<
 
 $(NAME): $(OBJS)
-	$(CC) $(OBJS) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) 
 
 clean:
 	$(RM) $(OBJS)

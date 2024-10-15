@@ -1,14 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: junruh <junruh@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/14 19:21:12 by junruh            #+#    #+#             */
+/*   Updated: 2024/10/15 14:53:54 by junruh           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/time.h>
-#include <pthread.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <string.h>
+# include <sys/time.h>
+# include <pthread.h>
 
-typedef struct s_data t_data;
+typedef struct s_data	t_data;
 
 typedef struct s_philo
 {
@@ -16,11 +28,11 @@ typedef struct s_philo
 	int				id;
 	int				meals_eaten;
 	pthread_mutex_t	is_eating;
-	int				ifree;
 	size_t			last_meal;
 	t_data			*data;
 	int				fork1;
 	int				fork2;
+	int				thread_active;
 }	t_philo;
 
 typedef struct s_data
@@ -28,6 +40,7 @@ typedef struct s_data
 	t_philo			philos[200];
 	pthread_mutex_t	mutex[200];
 	pthread_mutex_t	writing;
+	pthread_mutex_t	done_m;
 	pthread_t		obs;
 	int				done_flag;
 	int				num_philos;
@@ -38,12 +51,11 @@ typedef struct s_data
 	size_t			start_time;
 }	t_data;
 
-
 //main
-int	main(int argc, char **argv);
-int	init_all(int argc, char **argv, t_data *data, size_t start_time);
-int	check_input(int argc, char **argv);
-int	init_philos(t_data *data, t_philo *philos);
+int		main(int argc, char **argv);
+int		init_all(int argc, char **argv, t_data *data, size_t start_time);
+int		check_input(int argc, char **argv);
+int		init_philos(t_data *data, t_philo *philos);
 
 //philo
 int		meal(t_data *data);
@@ -57,6 +69,7 @@ void	*routine_one(void *arg);
 
 //utils
 void	free_pthread(t_data *data);
+int		sim_end(t_data *data);
 size_t	getms(void);
 int		ft_atoi(const char *str);
 
